@@ -44,8 +44,8 @@ const (
 
 // Downsampling ranges i.e. minimum block size after which we start to downsample blocks (in seconds).
 const (
-	ResLevel1DownsampleRange = 40 * 60 * 60 * 1000      // 40 hours.
-	ResLevel2DownsampleRange = 10 * 24 * 60 * 60 * 1000 // 10 days.
+	ResLevel1DownsampleRange = 30 * 24 * 60 * 60 * 1000      // 30 days.
+	ResLevel2DownsampleRange = 1000 * 24 * 60 * 60 * 1000 // 1000 days.
 )
 
 // downsample downsamples the given block. It writes a new block into dir and returns its ID.

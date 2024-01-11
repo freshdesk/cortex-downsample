@@ -529,6 +529,8 @@ func (c *Compactor) starting(ctx context.Context) error {
 			dataDir:               c.compactorCfg.DataDir,
 			blockFilesConcurrency: defaultDeleteBlocksConcurrency,
 			acceptMalformedIndex:  c.compactorCfg.AcceptMalformedIndex,
+			metaSyncConcurrency: 5,
+			blockSyncConcurrency: 5,
 		},
 		c.bucketClient,
 		cortex_tsdb.NewUsersScanner(c.bucketClient, c.ownUserForCompaction, c.parentLogger),
@@ -596,6 +598,11 @@ func (c *Compactor) starting(ctx context.Context) error {
 	if err := services.StartAndAwaitRunning(ctx, c.blocksCleaner); err != nil {
 		c.ringSubservices.StopAsync()
 		return errors.Wrap(err, "failed to start the blocks cleaner")
+	}
+
+	if err := services.StartAndAwaitRunning(ctx, c.blockDownsample); err != nil {
+		c.ringSubservices.StopAsync()
+		return errors.Wrap(err, "failed to start the blocks downsample")
 	}
 
 	return nil

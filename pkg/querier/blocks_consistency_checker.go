@@ -73,6 +73,10 @@ func (c *BlocksConsistencyChecker) Check(knownBlocks bucketindex.Blocks, knownDe
 			}
 		}
 
+		if block.Resolution < 300000 {
+			continue
+		}
+
 		if _, ok := actualBlocks[block.ID]; !ok {
 			missingBlocks = append(missingBlocks, block.ID)
 		}
