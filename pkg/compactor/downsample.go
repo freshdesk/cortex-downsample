@@ -73,17 +73,18 @@ func NewDownsample(cfg DownsampleConfig, bucketClient objstore.Bucket, usersScan
 		syncerMetrics: syncerMetrics,
 		metrics:       downsample.NewDownsampleMetrics(reg),
 	}
-
-	c.Service = services.NewTimerService(c.cfg.DownsampleInterval, c.starting, c.ticker, nil)
-
+    level.Info(c.logger).Log("msg", "creating NewTimerService")
+	c.Service = services.NewTimerService(cfg.DownsampleInterval, c.starting, c.ticker, nil)
+	level.Info(c.logger).Log("msg", "created NewTimerService")
 	return c
 }
 
 func (c *Downsample) starting(ctx context.Context) error {
 	// Run a cleanup so that any other service depending on this service
 	// is guaranteed to start once the initial cleanup has been done.
+	level.Info(c.logger).Log("msg", "calling rundownsample")
 	c.runDownsample(ctx, true)
-
+    
 	return nil
 }
 
@@ -92,7 +93,7 @@ func (c *Downsample) ticker(ctx context.Context) error {
 }
 
 func (c *Downsample) runDownsample(ctx context.Context, firstRun bool) {
-	level.Info(c.logger).Log("msg", "started blocks cleanup and maintenance")
+	level.Info(c.logger).Log("msg", "called downsample")
 
 	if err := c.downsampleUsers(ctx); err == nil {
 		level.Info(c.logger).Log("msg", "successfully completed blocks cleanup and maintenance")
@@ -109,7 +110,7 @@ func (c *Downsample) downsampleUsers(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to discover users from bucket")
 	}
-
+	level.Info(c.logger).Log("msg", "after users scanned")
 	allUsers := append(users, deleted...)
 	ownedUsers := make(map[string]struct{}, len(allUsers))
 	for _, u := range allUsers {
@@ -117,6 +118,7 @@ func (c *Downsample) downsampleUsers(ctx context.Context) error {
 	}
 
 	concurrency.ForEachUser(ctx, users, c.cfg.DownsampleConcurrency, func(ctx context.Context, userID string) error {
+		level.Info(c.logger).Log("msg", "for each user")
 		// Skipping downsample if the  bucket index failed to sync due to CMK errors.
 		if idxs, err := bucketindex.ReadSyncStatus(ctx, c.bucketClient, userID, util_log.WithUserID(userID, c.logger)); err == nil {
 			if idxs.Status == bucketindex.CustomerManagedKeyError {
@@ -158,7 +160,7 @@ func (c *Downsample) downsampleUsers(ctx context.Context) error {
 
 func (c *Downsample) downsampleUserWithRetries(ctx context.Context, userID string) error {
 	var lastErr error
-
+	level.Info(c.logger).Log("msg", "downsampleUserWithRetries")
 	retries := backoff.New(ctx, backoff.Config{
 		MinBackoff: c.cfg.retryMinBackoff,
 		MaxBackoff: c.cfg.retryMaxBackoff,
@@ -221,10 +223,15 @@ func (c *Downsample) downsampleUser(ctx context.Context, userID string) (returnE
 	}
 	currentCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
+	level.Info(c.logger).Log("msg", "before fetcher")
 	metas, _, err := fetcher.Fetch(currentCtx)
+	level.Info(c.logger).Log("msg", "after fetcher")
 	if err != nil {
+		level.Info(c.logger).Log("msg", "after fetcher returning")
 		return err
 	}
+
+	level.Info(c.logger).Log("msg", "before DownsampleBucket")
 
 	if err := downsample.DownsampleBucket(
 		currentCtx,
@@ -240,6 +247,7 @@ func (c *Downsample) downsampleUser(ctx context.Context, userID string) (returnE
 		downsample.ResLevel1DownsampleRange,
 		downsample.ResLevel2DownsampleRange,
 	); err != nil {
+		level.Info(c.logger).Log("msg", "error received")
 		return errors.Wrap(err, "downsample bucket")
 	}
 	return nil
