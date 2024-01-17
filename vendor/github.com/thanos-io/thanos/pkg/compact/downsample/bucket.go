@@ -169,6 +169,13 @@ metaSendLoop:
 			if !missing {
 				continue
 			}
+			
+			// downsample only for 30 days old blocks
+
+			if time.Now() - m.MaxTime  < 2592000000 {
+				continue
+			}
+
 			// Only downsample blocks once we are sure to get roughly 2 chunks out of it.
 			// NOTE(fabxc): this must match with at which block size the compactor creates downsampled
 			// blocks. Otherwise we may never downsample some data.
