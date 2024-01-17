@@ -172,7 +172,7 @@ metaSendLoop:
 			
 			// downsample only for 30 days old blocks
 
-			if time.Now() - m.MaxTime  < 2592000000 {
+			if time.Now().Sub(time.Unix(m.MaxTime/1000, 0))  <  (30 * 24 * time.Hour) {
 				continue
 			}
 
