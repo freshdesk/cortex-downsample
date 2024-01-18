@@ -605,7 +605,7 @@ func (q *blocksStoreQuerier) fetchSeriesFromStores(
 			// retrieved.
 			seriesQueryStats := &hintspb.QueryStats{}
 
-			req, err := createSeriesRequest(minT, maxT, convertedMatchers, shardingInfo, skipChunks, aggrs, 300000, blockIDs)
+			req, err := createSeriesRequest(minT, maxT, convertedMatchers, shardingInfo, skipChunks, aggrs, sp.Step, blockIDs)
 			if err != nil {
 				return errors.Wrapf(err, "failed to create series request")
 			}

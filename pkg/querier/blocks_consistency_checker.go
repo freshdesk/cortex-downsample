@@ -73,7 +73,7 @@ func (c *BlocksConsistencyChecker) Check(knownBlocks bucketindex.Blocks, knownDe
 			}
 		}
 
-		if block.Resolution < 300000 {
+		if block.Resolution == 300000 {
 			continue
 		}
 
