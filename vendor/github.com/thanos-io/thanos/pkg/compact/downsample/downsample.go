@@ -44,7 +44,7 @@ const (
 
 // Downsampling ranges i.e. minimum block size after which we start to downsample blocks (in seconds).
 const (
-	ResLevel1DownsampleRange = 24 * 60 * 60 * 1000      // 1 day.
+	ResLevel1DownsampleRange = 23 * 60 * 60 * 1000      // 1 day.
 	ResLevel2DownsampleRange = 1000 * 24 * 60 * 60 * 1000 // 1000 days.
 )
 
