@@ -610,6 +610,9 @@ func (p *parser) checkAST(node Node) (typ ValueType) {
 				break
 			}
 		}
+		if !notEmpty {
+			
+		}
 
 	case *NumberLiteral, *StringLiteral:
 		// Nothing to do for terminals.
