@@ -92,6 +92,10 @@ func (f *BucketIndexBlocksFinder) GetBlocks(ctx context.Context, userID string, 
 			continue
 		}
 
+		if block.Resolution == 0 && (time.Now().Sub(time.Unix(block.MaxTime/1000, 0))  >=  (30 * 24 * time.Hour)) {
+			continue
+		}
+
 		matchingBlocks[block.ID] = block
 	}
 
