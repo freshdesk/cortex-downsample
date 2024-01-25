@@ -610,7 +610,7 @@ func (p *parser) checkAST(node Node) (typ ValueType) {
 			}
 		}
 		if !notEmpty {
-			
+			p.addParseErrf(n.PositionRange(), "vector selector must contain at least one non-empty matcher")
 		}
 
 	case *NumberLiteral, *StringLiteral:

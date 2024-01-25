@@ -73,7 +73,8 @@ func (c *BlocksConsistencyChecker) Check(knownBlocks bucketindex.Blocks, knownDe
 			}
 		}
 
-		if block.Resolution < 300000 {
+		if block.Resolution < 300000 && (time.Now().Sub(time.Unix(block.MaxTime/1000, 0))  >  (30 * 24 * time.Hour)) {
+			level.Debug(c.logger).Log("msg", "block skipped from consistency check CHECK THIS", "block", block.ID.String(), "uploadedAt", block.GetUploadedAt().String())
 			continue
 		}
 
