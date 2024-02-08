@@ -98,12 +98,10 @@ func (f *BucketIndexBlocksFinder) GetBlocks(ctx context.Context, userID string, 
 		if exists{
 			if block.Resolution == 300000 && (time.Now().Sub(time.Unix(block.MaxTime/1000, 0))  >=  (30 * 24 * time.Hour)) {
 				delete(matchingBlocks, value)
-			}
-			else {
+			} else {
 				continue
 			}
-		}
-		else {
+		} else {
 			filterSameRangeBlocks[block.MinTime] = block.ID
 		}
 		matchingBlocks[block.ID] = block
