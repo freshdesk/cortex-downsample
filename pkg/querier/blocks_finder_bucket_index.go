@@ -84,6 +84,7 @@ func (f *BucketIndexBlocksFinder) GetBlocks(ctx context.Context, userID string, 
 	var (
 		matchingBlocks        = map[ulid.ULID]*bucketindex.Block{}
 		matchingDeletionMarks = map[ulid.ULID]*bucketindex.BlockDeletionMark{}
+		filterSameRangeBlocks = make(map[int64]ulid.ULID)
 	)
 
 	// Filter blocks containing samples within the range.
@@ -92,10 +93,19 @@ func (f *BucketIndexBlocksFinder) GetBlocks(ctx context.Context, userID string, 
 			continue
 		}
 
-		if block.Resolution == 0 && (time.Now().Sub(time.Unix(block.MaxTime/1000, 0))  >=  (30 * 24 * time.Hour)) {
-			continue
-		}
+		value, exists := filterSameRangeBlocks[block.MinTime]
 
+		if exists{
+			if block.Resolution == 300000 && (time.Now().Sub(time.Unix(block.MaxTime/1000, 0))  >=  (30 * 24 * time.Hour)) {
+				delete(matchingBlocks, value)
+			}
+			else {
+				continue
+			}
+		}
+		else {
+			filterSameRangeBlocks[block.MinTime] = block.ID
+		}
 		matchingBlocks[block.ID] = block
 	}
 

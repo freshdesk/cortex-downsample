@@ -604,7 +604,7 @@ func (q *blocksStoreQuerier) fetchSeriesFromStores(
 			// Only fail the function if we have validation error. We should return blocks that were successfully
 			// retrieved.
 			seriesQueryStats := &hintspb.QueryStats{}
-
+			level.Info(spanLog).Log("msg","sp.Step is ", sp.Step);
 			req, err := createSeriesRequest(minT, maxT, convertedMatchers, shardingInfo, skipChunks, aggrs, 300000, blockIDs)
 			if err != nil {
 				return errors.Wrapf(err, "failed to create series request")
