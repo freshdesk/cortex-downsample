@@ -73,6 +73,10 @@ func (c *BlocksConsistencyChecker) Check(knownBlocks bucketindex.Blocks, knownDe
 			}
 		}
 
+		if block.Resolution == 300000  {
+			level.Debug(c.logger).Log("msg", "block skipped from consistency check CHECK THIS", "block", block.ID.String(), "uploadedAt", block.GetUploadedAt().String())
+			continue
+		}
 		if _, ok := actualBlocks[block.ID]; !ok {
 			missingBlocks = append(missingBlocks, block.ID)
 		}
